@@ -1,0 +1,25 @@
+{% if num_tweets %}
+  <ul>
+    {{num_tweets}} tweets written by {{num_users}} users 
+  </ul>
+  <ul>
+    Most popular terms 
+    {% for term in terms %}
+        <li>{{term.0}}: {{term.1}} times</li>
+    {% endfor %}
+  </ul>
+  <ul>
+    Most mentioned users
+    {% for mention in user_mentions %}
+        <li>{{mention.0}}: {{mention.1}} times</li>
+    {% endfor %}
+  </ul>
+  <ul>
+    Most popular hashtags
+    {% for ht in hashtags %}
+        <li>{{ht.0}}: {{ht.1}} times</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No tweets written.</p>
+{% endif %}
