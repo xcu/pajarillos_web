@@ -17,16 +17,14 @@ def index(request):
 def chunk_details(request, sdate):
   db = DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False)
   sdate = datetime(*parse_date(sdate))
-  context = dict(zip(CHUNK_DATA, db.get_chunk(sdate)))
-  context['users'] = len(context['users'])
+  context = db.get_chunk(sdate)
   return render(request, 'chunks/index.html', context)
 
 def chunk_range(request, sdate, edate):
   db = DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False)
   sdate = datetime(*parse_date(sdate))
   edate = datetime(*parse_date(edate))
-  context = dict(zip(CHUNK_DATA, db.get_chunk_range(sdate, edate)))
-  context['users'] = len(context['users'])
+  context = db.get_chunk_range(sdate, edate)
   return render(request, 'chunks/index.html', context)
 
 
