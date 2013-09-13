@@ -1,10 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from db.injector import TimeChunkInjector
 from db.db_manager import DBManager
 from pymongo import MongoClient
 from datetime import datetime
-from utils import convert_date, CHUNK_DATA
+from utils import convert_date
 
 
 def parse_date(date_str):
