@@ -4,27 +4,29 @@ from db.injector import TimeChunkInjector
 from db.db_manager import DBManager
 from pymongo import MongoClient
 from datetime import datetime
-from utils import convert_date
+from utils import convert_date, CHUNK_DATA
+
+
+def parse_date(date_str):
+  day, month, year, hour, minute = [int(i) for i in date_str.split('-')]
+  return year, month, day, hour, minute
 
 def index(request):
   return HttpResponse("Hello, world. You're at the chunk index.")
 
-def chunk_details(request, sdate, edate=''):
-  def parse_date(date_str):
-    day, month, year, hour, minute = [int(i) for i in date_str.split('-')]
-    return year, month, day, hour, minute
-  injector = TimeChunkInjector(DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False))
+def chunk_details(request, sdate):
+  db = DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False)
   sdate = datetime(*parse_date(sdate))
-  if edate:
-    edate = datetime(*parse_date(edate))
-  context = dict(zip(('terms', 'user_mentions', 'hashtags', 'num_users', 'num_tweets'), get_all_chunks(injector, sdate, edate)))
-  context['num_users'] = len(context['num_users'])
+  context = dict(zip(CHUNK_DATA, db.get_chunk(sdate)))
+  context['users'] = len(context['users'])
   return render(request, 'chunks/index.html', context)
 
-def get_all_chunks(injector, sdate, edate):
-  if not edate:
-    # just one, no need to gather
-    return injector.from_db(convert_date(sdate))
-  return injector.reduce_range(convert_date(sdate), convert_date(edate))
-   
+def chunk_range(request, sdate, edate):
+  db = DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False)
+  sdate = datetime(*parse_date(sdate))
+  edate = datetime(*parse_date(edate))
+  context = dict(zip(CHUNK_DATA, db.get_chunk_range(sdate, edate)))
+  context['users'] = len(context['users'])
+  return render(request, 'chunks/index.html', context)
+
 
