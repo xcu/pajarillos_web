@@ -23,7 +23,7 @@ def chunk_range(request, sdate, edate):
   db = DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False)
   sdate = datetime(*parse_date(sdate))
   edate = datetime(*parse_date(edate))
-  context = db.get_chunk_range(sdate, edate)
+  context = db.get_reduced_chunk_range(sdate, edate)
   return render(request, 'chunks/index.html', context)
 
 
