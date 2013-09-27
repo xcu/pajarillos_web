@@ -1,9 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from db.db_manager import DBManager
+from db.chunk import ChunkMgr
 from pymongo import MongoClient
 from datetime import datetime
-from utils import convert_date
 
 
 def parse_date(date_str):
@@ -20,10 +20,12 @@ def chunk_details(request, sdate):
   return render(request, 'chunks/index.html', context)
 
 def chunk_range(request, sdate, edate):
+  # how are we fetching current_chunk in the chunk_container?
   db = DBManager(MongoClient('localhost', 27017), 'stats', 'time_chunks', index='start_date', flush=False)
   sdate = datetime(*parse_date(sdate))
   edate = datetime(*parse_date(edate))
-  context = db.get_reduced_chunk_range(sdate, edate)
+  chunk_objs = (db.load_chunk_from_id(c) for c in db.get_chunk_range(sdate, edate))
+  context = ChunkMgr().get_top_occurrences(chunk_objs, 20)
   return render(request, 'chunks/index.html', context)
 
 
